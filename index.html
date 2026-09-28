@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101114">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Performance">
+<link rel="manifest" href="manifest.json">
+<title>Personal Performance</title>
+<style>
+:root{--bg:#101114;--card:#17191d;--line:#292c32;--text:#f5f5f5;--muted:#969aa3;--accent:#d8ff62}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif}
+main{max-width:760px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}
+nav{display:flex;gap:7px;overflow-x:auto;padding:4px 0 14px;scrollbar-width:none}nav button{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:12px;padding:10px 15px;min-height:44px;white-space:nowrap;font-weight:650}nav button.active{background:var(--accent);color:#111;border-color:var(--accent)}
+.hero,.section{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:18px;margin-bottom:14px}.hero{background:linear-gradient(145deg,#191b20,#131519);padding:22px}.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}h1{font-size:30px;line-height:1.05;margin:7px 0}h2{font-size:20px;margin:3px 0}.date{color:var(--muted);font-size:14px}.score{font-size:42px;font-weight:800;margin-top:20px}.score span,.metric small{font-size:14px;color:var(--muted);font-weight:500}.sectionhead{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}.metric{font-size:24px;font-weight:800}.chart{width:100%;background:#121418;border:1px solid #22252a;border-radius:15px}.point{cursor:pointer}.point circle{transition:r .15s}.point.selected circle{r:7}.detail{min-height:22px;margin-top:10px;color:var(--muted);font-size:13px}.detail strong{color:var(--text)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini{padding:16px;border:1px solid var(--line);border-radius:16px;background:#131519}.mini .v{font-size:25px;font-weight:800;margin-top:5px}.mini p{margin:3px 0 0;color:var(--muted);font-size:12px}.hidden{display:none!important}.row{padding:13px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.row small{display:block;color:var(--muted);margin-top:4px}.install{display:none;margin-bottom:14px}.install button{width:100%;padding:13px;border:0;border-radius:14px;background:var(--accent);font-weight:750}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.score{font-size:36px}}
+</style>
+</head>
+<body>
+<main>
+<div id="install" class="install"><button id="installBtn">Add Performance to Home Screen</button></div>
+<nav id="nav">
+<button class="active" data-tab="dashboard">Overview</button><button data-tab="training">Training</button><button data-tab="recovery">Recovery</button><button data-tab="lifestyle">Lifestyle</button><button data-tab="money">Money</button><button data-tab="daily">Daily</button>
+</nav>
+
+<section id="dashboard" class="page">
+<div class="hero"><div class="eyebrow">Personal Performance</div><h1>Dashboard</h1><div class="date">21–27 September 2026 · Week 1</div><div class="score">5.6<span>/10 weekly happiness</span></div></div>
+
+<div class="section"><div class="sectionhead"><div><div class="eyebrow">01 · Sleep</div><h2>Garmin sleep score</h2></div><div class="metric">56.7<small>/100 avg</small></div></div>
+<svg class="chart" viewBox="0 0 700 230"><path d="M55 185H670M55 130H670M55 75H670M55 20H670" stroke="#292c32"/><polyline points="55,130 157,84 259,113 361,51 463,150 565,80 667,107" fill="none" stroke="#d8ff62" stroke-width="3"/>
+<g class="points"><g class="point" data-day="Mon 21 Sep" data-value="49" transform="translate(55 130)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Tue 22 Sep" data-value="70" transform="translate(157 84)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Wed 23 Sep" data-value="58" transform="translate(259 113)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Thu 24 Sep" data-value="77" transform="translate(361 51)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Fri 25 Sep" data-value="40" transform="translate(463 150)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Sat 26 Sep" data-value="73" transform="translate(565 80)"><circle r="5" fill="#d8ff62"/></g><g class="point" data-day="Sun 27 Sep" data-value="60" transform="translate(667 107)"><circle r="5" fill="#d8ff62"/></g></g></svg><div class="detail">Tap a point to see that day's score.</div></div>
+
+<div class="section"><div class="sectionhead"><div><div class="eyebrow">02 · Training distance</div><h2>Daily distance</h2></div><div class="metric">48.21<small> km</small></div></div>
+<svg class="chart" viewBox="0 0 700 230"><path d="M55 185H670M55 130H670M55 75H670M55 20H670" stroke="#292c32"/><polyline points="55,173 157,28 259,173 361,185 463,173 565,128 667,185" fill="none" stroke="#75a7ff" stroke-width="3"/>
+<g class="points"><g class="point" data-day="Mon 21 Sep" data-value="2 km" transform="translate(55 173)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Tue 22 Sep" data-value="30.26 km" transform="translate(157 28)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Wed 23 Sep" data-value="2 km" transform="translate(259 173)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Thu 24 Sep" data-value="0 km" transform="translate(361 185)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Fri 25 Sep" data-value="2 km" transform="translate(463 173)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Sat 26 Sep" data-value="11.95 km" transform="translate(565 128)"><circle r="5" fill="#75a7ff"/></g><g class="point" data-day="Sun 27 Sep" data-value="0 km" transform="translate(667 185)"><circle r="5" fill="#75a7ff"/></g></g></svg><div class="detail">Tap a point to see that day's distance.</div></div>
+
+<div class="section"><div class="sectionhead"><div><div class="eyebrow">03 · Happiness</div><h2>Daily happiness</h2></div><div class="metric">5.6<small>/10 avg</small></div></div>
+<svg class="chart" viewBox="0 0 700 230"><path d="M55 185H670M55 130H670M55 75H670M55 20H670" stroke="#292c32"/><polyline points="55,84 157,84 259,84 361,107 463,61 565,61 667,144" fill="none" stroke="#ff9b70" stroke-width="3"/>
+<g class="points"><g class="point" data-day="Mon 21 Sep" data-value="6/10" transform="translate(55 84)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Tue 22 Sep" data-value="6/10" transform="translate(157 84)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Wed 23 Sep" data-value="6/10" transform="translate(259 84)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Thu 24 Sep" data-value="5/10" transform="translate(361 107)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Fri 25 Sep" data-value="7/10" transform="translate(463 61)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Sat 26 Sep" data-value="7/10" transform="translate(565 61)"><circle r="5" fill="#ff9b70"/></g><g class="point" data-day="Sun 27 Sep" data-value="3.5/10" transform="translate(667 144)"><circle r="5" fill="#ff9b70"/></g></g></svg><div class="detail">Tap a point to see that day's happiness.</div></div>
+</section>
+
+<section id="training" class="page hidden"><div class="hero"><div class="eyebrow">Training</div><h1>Training week</h1><div class="date">21–27 September 2026</div></div><div class="grid"><div class="mini"><div class="eyebrow">Swim</div><div class="v">7.0/10</div><p>6.00 km · 3 sessions</p></div><div class="mini"><div class="eyebrow">Bike</div><div class="v">4.5/10</div><p>42.21 km · 2 sessions</p></div><div class="mini"><div class="eyebrow">Run</div><div class="v">0/10</div><p>0 km · 1 logged session</p></div><div class="mini"><div class="eyebrow">Total</div><div class="v">48.21 km</div><p>Weekly distance</p></div></div></section>
+<section id="recovery" class="page hidden"><div class="hero"><div class="eyebrow">Recovery</div><h1>Sleep & recovery</h1><div class="date">21–27 September 2026</div></div><div class="grid"><div class="mini"><div class="eyebrow">Garmin score</div><div class="v">56.7</div><p>Average /100</p></div><div class="mini"><div class="eyebrow">Sleep time</div><div class="v">41h 49m</div><p>Weekly total</p></div><div class="mini"><div class="eyebrow">Average</div><div class="v">5h 58m</div><p>Per night</p></div><div class="mini"><div class="eyebrow">Best score</div><div class="v">77</div><p>Thursday</p></div></div></section>
+<section id="lifestyle" class="page hidden"><div class="hero"><div class="eyebrow">Lifestyle</div><h1>Life outside training</h1><div class="date">21–27 September 2026</div></div><div class="grid"><div class="mini"><div class="eyebrow">Diet</div><div class="v">4.9/10</div><p>Weekly average</p></div><div class="mini"><div class="eyebrow">Social</div><div class="v">1.14/10</div><p>Weekly average</p></div><div class="mini"><div class="eyebrow">Work</div><div class="v">5.4/10</div><p>5 recorded days</p></div><div class="mini"><div class="eyebrow">Happiness</div><div class="v">5.6/10</div><p>Weekly average</p></div></div></section>
+<section id="money" class="page hidden"><div class="hero"><div class="eyebrow">Money</div><h1>Weekly finances</h1><div class="date">21–27 September 2026</div></div><div class="grid"><div class="mini"><div class="eyebrow">Money in</div><div class="v">£592.90</div><p>Total</p></div><div class="mini"><div class="eyebrow">Spent</div><div class="v">£554.70</div><p>Total</p></div><div class="mini"><div class="eyebrow">Net</div><div class="v">+£38.20</div><p>Income minus spending</p></div><div class="mini"><div class="eyebrow">Unnecessary</div><div class="v">£133.25</div><p>24.0% of spending</p></div></div></section>
+<section id="daily" class="page hidden"><div class="hero"><div class="eyebrow">Daily log</div><h1>21–27 September</h1><div class="date">Your recorded week</div></div><div id="dailyList"></div></section>
+</main>
+<script>
+const nav=document.querySelectorAll('#nav button'),pages=document.querySelectorAll('.page');
+nav.forEach(b=>b.addEventListener('click',()=>{nav.forEach(x=>x.classList.remove('active'));b.classList.add('active');pages.forEach(p=>p.classList.toggle('hidden',p.id!==b.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
+document.querySelectorAll('.point').forEach(p=>p.addEventListener('click',()=>{const section=p.closest('.section');section.querySelectorAll('.point').forEach(x=>x.classList.remove('selected'));p.classList.add('selected');section.querySelector('.detail').innerHTML='<strong>'+p.dataset.day+'</strong> · '+p.dataset.value}));
+const days=[
+['Mon 21 Sep','Diet 7 · Swim 8/10 (2 km) · Sleep 49 · Happiness 6','£118.58 in · £34.25 spent · £28.55 unnecessary'],
+['Tue 22 Sep','Diet 7 · Bike 7/10 (30.26 km) · Sleep 70 · Happiness 6','£118.58 in · £48.70 spent · £12.70 unnecessary'],
+['Wed 23 Sep','Diet 7 · Swim 5/10 (2 km) · Sleep 58 · Happiness 6','£118.58 in · £29 spent · £21 unnecessary'],
+['Thu 24 Sep','Diet 7 · No training · Sleep 77 · Happiness 5','£118.58 in · £75.75 spent · £20 unnecessary'],
+['Fri 25 Sep','Diet 4.5 · Swim 8/10 (2 km) · Sleep 40 · Happiness 7','£118.58 in · £171 spent · £10 unnecessary'],
+['Sat 26 Sep','Diet 2 · Bike 2/10 (11.95 km) · Social 7 · Sleep 73 · Happiness 7','£0 in · £57 spent · £17 unnecessary'],
+['Sun 27 Sep','Diet 0 · Run 0/10 (0 km) · Social 1 · Sleep 60 · Happiness 3.5','£0 in · £139 spent · £24 unnecessary']
+];
+document.getElementById('dailyList').innerHTML=days.map(d=>`<div class="row"><strong>${d[0]}</strong><small>${d[1]}</small><small>${d[2]}</small></div>`).join('');
+let deferredPrompt;const install=document.getElementById('install'),installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;install.style.display='block';installBtn.onclick=async()=>{deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;install.style.display='none'}});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
