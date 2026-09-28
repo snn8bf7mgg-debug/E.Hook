@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101114">
+  <meta name="api-base" content="">
+  <title>Daily check-in</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: #101114;
+      color: #f5f5f5;
+      --muted: #a4a8b1;
+      --line: #30333a;
+      --card: #17191d;
+      --accent: #d8ff62;
+      --danger: #ff8f8f;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: max(14px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom)); }
+    main { width: min(100%, 560px); margin: 0 auto; }
+    header { padding: 8px 3px 16px; }
+    .eyebrow { color: var(--accent); font-size: 11px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 5px 0 4px; font-size: clamp(25px, 7vw, 32px); letter-spacing: -.04em; }
+    .intro, .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    form { display: grid; gap: 10px; }
+    .group { padding: 14px; border: 1px solid var(--line); border-radius: 17px; background: var(--card); }
+    .group h2 { margin: 0 0 11px; font-size: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .field { min-width: 0; display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    label, .label { color: #d8dae0; font-size: 12px; font-weight: 650; }
+    .unit { color: var(--muted); font-weight: 500; }
+    input[type="number"] {
+      width: 100%; min-width: 0; min-height: 46px; padding: 10px 11px;
+      border: 1px solid #3b3f47; border-radius: 11px; background: #101216; color: #fff;
+      font: inherit; font-size: 16px; appearance: textfield;
+    }
+    input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+    input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input:disabled { opacity: .45; }
+    .date-box { min-height: 44px; display: flex; align-items: center; color: #fff; font-size: 15px; }
+    .training { display: grid; gap: 9px; }
+    .training-card { padding: 11px; border: 1px solid #2d3036; border-radius: 13px; background: #131519; }
+    .training-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .training-head strong { font-size: 14px; }
+    .rest-toggle { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .rest-toggle input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+    .training-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .training-card.is-rest .training-fields { display: none; }
+    .rest-note { display: none; margin: 0; color: var(--accent); font-size: 12px; }
+    .training-card.is-rest .rest-note { display: block; }
+    .sleep-duration { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+    .sleep-duration .separator { padding-bottom: 13px; color: var(--muted); }
+    .summary { min-height: 0; margin: 0; }
+    .message { display: none; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; font-size: 13px; line-height: 1.45; }
+    .message.visible { display: block; }
+    .message.error { border-color: #793f46; background: #28191d; color: #ffd4d6; }
+    .message.success { border-color: #47542b; background: #202617; color: #e8f8c6; }
+    .message strong { display: block; margin-bottom: 3px; font-size: 14px; }
+    button[type="submit"], .edit-button {
+      width: 100%; min-height: 50px; border: 0; border-radius: 14px; background: var(--accent);
+      color: #111; font: inherit; font-size: 15px; font-weight: 800;
+    }
+    button[type="submit"]:disabled { opacity: .6; }
+    button .spinner { display: none; width: 15px; height: 15px; margin-right: 8px; border: 2px solid #667144; border-top-color: #111; border-radius: 50%; vertical-align: -3px; animation: spin .7s linear infinite; }
+    button[aria-busy="true"] .spinner { display: inline-block; }
+    .edit-button { margin-top: 9px; min-height: 42px; border: 1px solid var(--line); background: transparent; color: #fff; }
+    .error-list { margin: 5px 0 0; padding-left: 18px; }
+    .footnote { margin: 1px 3px 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (min-width: 430px) { body { padding-right: 20px; padding-left: 20px; } .training { grid-template-columns: 1fr 1fr; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Personal performance</div>
+      <h1>Daily check-in</h1>
+      <p class="intro">A quick snapshot of today. Scores are out of 10 unless shown otherwise.</p>
+    </header>
+
+    <form id="checkin-form" novalidate>
+      <section class="group" aria-labelledby="date-heading">
+        <h2 id="date-heading">Date</h2>
+        <div id="today-date" class="date-box" aria-live="polite"></div>
+        <input id="date" name="date" type="hidden" required>
+      </section>
+
+      <section class="group" aria-labelledby="diet-heading">
+        <h2 id="diet-heading">Diet</h2>
+        <div class="field">
+          <label for="diet_score">Score <span class="unit">/10</span></label>
+          <input id="diet_score" name="diet_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="training-heading">
+        <h2 id="training-heading">Training</h2>
+        <div class="training">
+          <div class="training-card" data-training="swim">
+            <div class="training-head">
+              <strong>Swim</strong>
+              <label class="rest-toggle"><input type="checkbox" data-rest="swim"> Rest day</label>
+            </div>
+            <div class="training-fields">
+              <div class="field"><label for="swim_score">Score <span class="unit">/10</span></label><input id="swim_score" name="swim_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+              <div class="field"><label for="swim_distance_m">Distance <span class="unit">m</span></label><input id="swim_distance_m" name="swim_distance_m" type="number" min="0" step="1" inputmode="numeric" placeholder="Metres" required></div>
+            </div>
+            <p class="rest-note">Rest day — no swim logged.</p>
+          </div>
+          <div class="training-card" data-training="bike">
+            <div class="training-head">
+              <strong>Bike</strong>
+              <label class="rest-toggle"><input type="checkbox" data-rest="bike"> Rest day</label>
+            </div>
+            <div class="training-fields">
+              <div class="field"><label for="bike_score">Score <span class="unit">/10</span></label><input id="bike_score" name="bike_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+              <div class="field"><label for="bike_distance_km">Distance <span class="unit">km</span></label><input id="bike_distance_km" name="bike_distance_km" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Kilometres" required></div>
+            </div>
+            <p class="rest-note">Rest day — no bike logged.</p>
+          </div>
+          <div class="training-card" data-training="run">
+            <div class="training-head">
+              <strong>Run</strong>
+              <label class="rest-toggle"><input type="checkbox" data-rest="run"> Rest day</label>
+            </div>
+            <div class="training-fields">
+              <div class="field"><label for="run_score">Score <span class="unit">/10</span></label><input id="run_score" name="run_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+              <div class="field"><label for="run_distance_km">Distance <span class="unit">km</span></label><input id="run_distance_km" name="run_distance_km" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Kilometres" required></div>
+            </div>
+            <p class="rest-note">Rest day — no run logged.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="life-heading">
+        <h2 id="life-heading">Life</h2>
+        <div class="grid">
+          <div class="field"><label for="social_score">Social <span class="unit">/10</span></label><input id="social_score" name="social_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+          <div class="field"><label for="work_score">Work <span class="unit">/10</span></label><input id="work_score" name="work_score" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+          <div class="field"><label for="happiness">Happiness <span class="unit">/10</span></label><input id="happiness" name="happiness" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0–10" required></div>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="sleep-heading">
+        <h2 id="sleep-heading">Sleep</h2>
+        <div class="grid">
+          <div class="field full"><label for="sleep_score">Sleep score <span class="unit">/100</span></label><input id="sleep_score" name="sleep_score" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="0–100" required></div>
+          <div class="field full">
+            <span class="label">Duration <span class="unit">hours and minutes</span></span>
+            <div class="sleep-duration">
+              <div class="field"><label for="sleep_hours">Hours</label><input id="sleep_hours" name="sleep_hours" type="number" min="0" max="24" step="1" inputmode="numeric" placeholder="0" required></div>
+              <span class="separator" aria-hidden="true">:</span>
+              <div class="field"><label for="sleep_minutes">Minutes</label><input id="sleep_minutes" name="sleep_minutes" type="number" min="0" max="59" step="1" inputmode="numeric" placeholder="00" required></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="money-heading">
+        <h2 id="money-heading">Money</h2>
+        <div class="grid">
+          <div class="field"><label for="money_in">Money in <span class="unit">£</span></label><input id="money_in" name="money_in" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+          <div class="field"><label for="money_spent">Money spent <span class="unit">£</span></label><input id="money_spent" name="money_spent" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+          <div class="field full"><label for="unnecessary_spending">Unnecessary spending <span class="unit">£</span></label><input id="unnecessary_spending" name="unnecessary_spending" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="body-heading">
+        <h2 id="body-heading">Body & recovery</h2>
+        <div class="grid">
+          <div class="field"><label for="hrv_ms">HRV <span class="unit">ms</span></label><input id="hrv_ms" name="hrv_ms" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="Milliseconds" required></div>
+          <div class="field"><label for="rhr_bpm">RHR <span class="unit">bpm</span></label><input id="rhr_bpm" name="rhr_bpm" type="number" min="20" max="250" step="1" inputmode="numeric" placeholder="Beats/min" required></div>
+          <div class="field"><label for="weight_kg">Weight <span class="unit">kg</span></label><input id="weight_kg" name="weight_kg" type="number" min="0.1" max="500" step="0.1" inputmode="decimal" placeholder="Kilograms" required></div>
+        </div>
+      </section>
+
+      <div id="form-message" class="message" role="status" aria-live="polite"></div>
+      <button id="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-label">Submit check-in</span></button>
+      <p class="footnote">Successful check-ins are saved to the daily check-in database.</p>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector("#checkin-form");
+    const submitButton = document.querySelector("#submit-button");
+    const buttonLabel = submitButton.querySelector(".button-label");
+    const message = document.querySelector("#form-message");
+    const dateInput = document.querySelector("#date");
+    const dateDisplay = document.querySelector("#today-date");
+    const apiBase = document.querySelector('meta[name="api-base"]').content.replace(/\/$/, "");
+    const telegramWebApp = window.Telegram?.WebApp;
+    const telegramInitData = telegramWebApp?.initData || "";
+    const isLoopback = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+    let submitting = false;
+    let submitted = false;
+
+    function localDate() {
+      const now = new Date();
+      const pad = (number) => String(number).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+    function showMessage(kind, title, detail) {
+      message.className = `message visible ${kind}`;
+      message.replaceChildren();
+      const heading = document.createElement("strong");
+      heading.textContent = title;
+      const text = document.createElement("span");
+      text.textContent = detail;
+      message.append(heading, text);
+    }
+    function clearMessage() {
+      message.className = "message";
+      message.replaceChildren();
+    }
+    function setToday() {
+      const value = localDate();
+      dateInput.value = value;
+      dateDisplay.textContent = new Date(value + "T12:00:00").toLocaleDateString(undefined, {
+        weekday: "long", day: "numeric", month: "long", year: "numeric"
+      });
+    }
+    function numeric(name) {
+      return form.elements.namedItem(name).valueAsNumber;
+    }
+    function payloadFromForm() {
+      const payload = {
+        date: dateInput.value,
+        diet_score: numeric("diet_score"),
+        social_score: numeric("social_score"),
+        work_score: numeric("work_score"),
+        sleep_score: numeric("sleep_score"),
+        sleep_duration_minutes: numeric("sleep_hours") * 60 + numeric("sleep_minutes"),
+        money_in: numeric("money_in"),
+        money_spent: numeric("money_spent"),
+        unnecessary_spending: numeric("unnecessary_spending"),
+        happiness: numeric("happiness"),
+        hrv_ms: numeric("hrv_ms"),
+        rhr_bpm: numeric("rhr_bpm"),
+        weight_kg: numeric("weight_kg")
+      };
+      for (const activity of ["swim", "bike", "run"]) {
+        const rest = form.querySelector(`[data-rest="${activity}"]`).checked;
+        payload[`${activity}_score`] = rest ? null : numeric(`${activity}_score`);
+        payload[`${activity}_distance_${activity === "swim" ? "m" : "km"}`] = rest
+          ? null
+          : numeric(`${activity}_distance_${activity === "swim" ? "m" : "km"}`);
+      }
+      return payload;
+    }
+    function validateForm() {
+      for (const input of form.querySelectorAll("input[type=number]:not(:disabled)")) input.setCustomValidity("");
+      const hours = form.elements.sleep_hours;
+      const minutes = form.elements.sleep_minutes;
+      if (hours.value !== "" && minutes.value !== "" && Number(hours.value) === 24 && Number(minutes.value) > 0) {
+        minutes.setCustomValidity("For 24 hours, minutes must be 0.");
+      }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        const invalid = form.querySelector(":invalid");
+        showMessage("error", "Check the highlighted fields", invalid?.validationMessage || "Complete all required fields with valid values.");
+        invalid?.focus({ preventScroll: false });
+        return false;
+      }
+      return true;
+    }
+    function setRest(activity, isRest) {
+      const card = form.querySelector(`[data-training="${activity}"]`);
+      card.classList.toggle("is-rest", isRest);
+      card.querySelectorAll(".training-fields input").forEach((input) => {
+        input.disabled = isRest;
+        input.required = !isRest;
+        input.setCustomValidity("");
+      });
+    }
+
+    for (const toggle of form.querySelectorAll("[data-rest]")) {
+      toggle.addEventListener("change", () => {
+        setRest(toggle.dataset.rest, toggle.checked);
+        clearMessage();
+      });
+    }
+    form.addEventListener("input", () => {
+      if (!submitting && !submitted) clearMessage();
+    });
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (submitting || submitted || !validateForm()) return;
+      submitting = true;
+      submitButton.disabled = true;
+      submitButton.setAttribute("aria-busy", "true");
+      buttonLabel.textContent = "Submitting…";
+      clearMessage();
+      try {
+        const headers = { "content-type": "application/json" };
+        if (telegramInitData) {
+          headers["x-telegram-init-data"] = telegramInitData;
+        } else if (isLoopback) {
+          // This selects a server-configured synthetic user only in explicit
+          // development mode on a loopback server.
+          headers["x-telegram-dev-auth"] = "true";
+        }
+        const response = await fetch(`${apiBase}/api/check-ins`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payloadFromForm())
+        });
+        const result = await response.json().catch(() => ({}));
+        if (response.status === 201 && result.status === "stored" && result.stored === true) {
+          submitted = true;
+          showMessage("success", "Check-in saved", `Saved for ${result.checkIn?.date || dateInput.value}.`);
+          buttonLabel.textContent = "Saved";
+          return;
+        }
+        if (response.status === 409 && result.code === "CHECK_IN_EXISTS") {
+          showMessage("error", "A check-in already exists", `There is already a record for ${result.date || dateInput.value}. Editing an existing check-in will be supported separately.`);
+          return;
+        }
+        if (response.status === 422 && Array.isArray(result.details)) {
+          showMessage("error", "Please correct your check-in", result.details.join(" "));
+        } else {
+          showMessage("error", "Submission failed", result.error || "The server could not accept this check-in. Please try again.");
+        }
+      } catch {
+        showMessage("error", "Could not reach the server", "Check your connection and try again.");
+      } finally {
+        submitting = false;
+        submitButton.removeAttribute("aria-busy");
+        if (!submitted) {
+          submitButton.disabled = false;
+          buttonLabel.textContent = "Try again";
+        }
+      }
+    });
+    setToday();
+  </script>
+</body>
+</html>
